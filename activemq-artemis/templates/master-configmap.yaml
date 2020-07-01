@@ -21,7 +21,37 @@ data:
         </ha-policy>
       </core>
     </configuration>
-  
+
+  anycast-queue.xml: |
+    <configuration xmlns="urn:activemq" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
+      <core xmlns="urn:activemq:core" xsi:schemaLocation="urn:activemq:core ">
+        <addresses>
+    {{- range $i, $a := .Values.anycast }}
+          <address name="{{ $a }}">
+            <anycast>
+              <queue name="{{ $a }}"/>
+            </anycast>
+          </address>
+    {{- end }}
+        </addresses>
+      </core>
+    </configuration>
+
+  multicast-queue.xml: |
+    <configuration xmlns="urn:activemq" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
+      <core xmlns="urn:activemq:core" xsi:schemaLocation="urn:activemq:core ">
+        <addresses>
+    {{-  range $i, $a := .Values.multicast  }}
+          <address name="{{ $a }}">
+            <multicast>
+              <queue name="{{ $a }}"/>
+            </multicast>
+          </address>
+    {{- end }}
+        </addresses>
+      </core>
+    </configuration>
+
   configure-cluster.sh: |
     
     {{ $name := default .Chart.Name .Values.nameOverride }}
@@ -33,6 +63,10 @@ data:
 
     echo Assigning node as master
     cp /opt/configure-master/template-master.xml /var/lib/artemis/etc-override/broker-11.xml
+
+    echo Assigning queues
+    cp /opt/configure-master/anycast-queue.xml /var/lib/artemis/etc-override/broker-12.xml
+    cp /opt/configure-master/multicast-queue.xml /var/lib/artemis/etc-override/broker-13.xml
 
     GROUPNAME=$(echo ${HOSTNAME} | sed -re 's/(-slave|-master)//')
     echo Setting the group-name for slave to ${GROUPNAME}
