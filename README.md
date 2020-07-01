@@ -1,3 +1,5 @@
+## 0. What's this fork for? 
+This fork includes the ability to define AnyCast or MultiCast queues by values on the helm chart. Remember 'persistent' is only as persistent as the stateful storage, which may be emptyDir.
 
 ## 1. What is ActiveMQ Artemis?
 
